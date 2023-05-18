@@ -19,6 +19,165 @@
 #include "../command.h"
 #include "../helpers.h"
 
+/////////////////////////////////////////////////////////////////////////
+// Added functions
+/////////////////////////////////////////////////////////////////////////
+#if defined(CSR_ECC_READER_BASE)
+/**
+ * Command "ecc_write_w"
+ * 
+ * Write ecc data to dram
+ * 
+*/
+static void sdram_ecc_write_handler(int nb_params, char **params)
+{
+	char *c;
+	int address;
+	int data;
+	int count = 1;
+	if (nb_params < 2) {
+		printf("sdram_ecc_w <address> <data> [count=1(default)]");
+		return;
+	}
+	address = strtoul(params[0], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect address");
+		return;
+	}
+	data = strtoul(params[1], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect data");
+		return;
+	}
+	if (nb_params > 2) {
+		count = strtoul(params[2], &c, 0);
+		if (*c != 0) {
+			printf("Incorrect count");
+			return;
+		}
+	}
+	sdram_ecc_w(address, data, count);
+}
+define_command(sdram_ecc_w, sdram_ecc_write_handler, "Write ecc to dram", LITEDRAM_CMDS);
+
+/**
+ * Command "ecc_write"
+ * 
+ * Write ecc data to dram
+ * 
+*/
+static void sdram_nonecc_write_handler(int nb_params, char **params)
+{
+	char *c;
+	int address;
+	int data;
+	int count = 1;
+	if (nb_params < 2) {
+		printf("sdram_nonecc_w <address> <data> [count=1(default)]");
+		return;
+	}
+	address = strtoul(params[0], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect address");
+		return;
+	}
+	data = strtoul(params[1], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect data");
+		return;
+	}
+	if (nb_params > 2) {
+		count = strtoul(params[2], &c, 0);
+		if (*c != 0) {
+			printf("Incorrect count");
+			return;
+		}
+	}
+	sdram_nonecc_w(address, data, count);
+}
+define_command(sdram_nonecc_w, sdram_nonecc_write_handler, "Write nonecc to dram", LITEDRAM_CMDS);
+
+/**
+ * Command "ecc_read"
+ * 
+ * Write ecc data to dram
+ * 
+*/
+static void sdram_ecc_read_handler(int nb_params, char **params)
+{
+	char *c;
+	int address;
+	int count = 1;
+	if (nb_params < 1) {
+		printf("sdram_ecc_r <address> [count=1(default)]");
+		return;
+	}
+	address = strtoul(params[0], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect address");
+		return;
+	}
+	if (nb_params > 1) {
+		count = strtoul(params[1], &c, 0);
+		if (*c != 0) {
+			printf("Incorrect count");
+			return;
+		}
+	}
+	sdram_ecc_r(address, count);
+}
+define_command(sdram_ecc_r, sdram_ecc_read_handler, "Read ecc from dram", LITEDRAM_CMDS);
+
+/**
+ * Command "nonecc_read"
+ * 
+ * Write ecc data to dram
+ * 
+*/
+static void sdram_nonecc_read_handler(int nb_params, char **params)
+{
+	char *c;
+	int address;
+	int count = 1;
+	if (nb_params < 1) {
+		printf("sdram_nonecc_r <address> [count=1(default)]");
+		return;
+	}
+	address = strtoul(params[0], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect address");
+		return;
+	}
+	if (nb_params > 1) {
+		count = strtoul(params[1], &c, 0);
+		if (*c != 0) {
+			printf("Incorrect count");
+			return;
+		}
+	}
+	sdram_nonecc_r(address, count);
+}
+define_command(sdram_nonecc_r, sdram_nonecc_read_handler, "Read ecc from dram", LITEDRAM_CMDS);
+
+/**
+ * Command sdram_clear_ecc_counts
+ * 
+ * Clear ecc counts
+ * 
+*/
+define_command(sdram_clear_ecc_counts, sdram_ecc_clear_error_counts, "Clear error ecc counts", LITEDRAM_CMDS);
+#endif
+////////////////////////////////////////////////////////////////////////
+
+// /**
+//  * Command sdram_ecc_info
+//  * 
+//  * Find info about ecc ports
+//  * 
+// */
+define_command(sdram_ecc_info, sdram_ecc_info, "Get ecc info", LITEDRAM_CMDS);
+
+
 /**
  * Command "sdram_bist"
  *

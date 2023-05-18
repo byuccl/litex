@@ -1472,6 +1472,7 @@ class LiteXSoC(SoC):
         from litedram.frontend.wishbone import LiteDRAMWishbone2Native
         from litedram.frontend.axi import LiteDRAMAXI2Native
         from litedram.frontend.bist import  LiteDRAMBISTGenerator, LiteDRAMBISTChecker
+        from litedram.frontend.ecc import LiteDRAMNativePortECC
 
         # LiteDRAM core.
         self.check_if_exists(name)
@@ -1607,7 +1608,24 @@ class LiteXSoC(SoC):
         )
         if connect_main_bus_to_dram:
             # Request a LiteDRAM native port.
-            port = sdram.crossbar.get_port()
+            ecc_port = sdram.crossbar.get_port()
+
+            ###################################
+            # Add ecc here
+            ###################################
+
+            port = LiteDRAMNativePort(
+                mode=ecc_port.mode,
+                address_width=ecc_port.address_width, # Round to nearest power of 2.
+                data_width=2**int(log2(ecc_port.data_width)),
+            )
+
+            self.submodules.port_ecc = LiteDRAMNativePortECC(
+                port, ecc_port,
+            )
+
+            ###################################
+            
             port.data_width = 2**int(log2(port.data_width)) # Round to nearest power of 2.
 
             # Create Wishbone Slave.
