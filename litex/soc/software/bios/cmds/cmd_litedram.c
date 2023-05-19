@@ -19,36 +19,238 @@
 #include "../command.h"
 #include "../helpers.h"
 
+
+
+// __attribute__((unused)) static void cdelay(int i)
+// {
+// #ifndef CONFIG_BIOS_NO_DELAYS
+// 	while(i > 0) {
+// 		__asm__ volatile(CONFIG_CPU_NOP);
+// 		i--;
+// 	}
+// #endif
+// }
+
+/**
+ * Command "cdelay test"
+ * 
+ * Test cdelay
+ *
+*/
+static void sdram_cdelay_test(int nb_params, char **params)
+{
+	char *c;
+	int delay_var;
+	if (nb_params < 1) {
+		printf("sdram_cdelay <delay_val>");
+		return;
+	}
+	delay_var = strtoul(params[0], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect delay_var");
+		return;
+	}
+	cdelay(delay_var);
+}
+define_command(sdram_cdelay, sdram_cdelay_test, "Run cdelay test", LITEDRAM_CMDS);
+
+
+
+
+// /**
+//  * Command "sdram_bist"
+//  *
+//  * Run SDRAM Build-In Self-Test
+//  *
+//  */
+// #if defined(CSR_SDRAM_GENERATOR_BASE) && defined(CSR_SDRAM_CHECKER_BASE)
+// static void sdram_bist_handler(int nb_params, char **params)
+// {
+// 	char *c;
+// 	int burst_length;
+// 	int random;
+// 	if (nb_params < 2) {
+// 		printf("sdram_bist <burst_length> <random>");
+// 		return;
+// 	}
+// 	burst_length = strtoul(params[0], &c, 0);
+// 	if (*c != 0) {
+// 		printf("Incorrect burst_length");
+// 		return;
+// 	}
+// 	random = strtoul(params[1], &c, 0);
+// 	if (*c != 0) {
+// 		printf("Incorrect random");
+// 		return;
+// 	}
+// 	sdram_bist(burst_length, random);
+// }
+// define_command(sdram_bist, sdram_bist_handler, "Run SDRAM Build-In Self-Test", LITEDRAM_CMDS);
+
+// #endif
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Added Commands
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Command "sdram_bist"
  *
- * Run SDRAM Build-In Self-Test
+ * Run SDRAM Build-In Self-Test (BIST)
  *
  */
-#if defined(CSR_SDRAM_GENERATOR_BASE) && defined(CSR_SDRAM_CHECKER_BASE)
-static void sdram_bist_handler(int nb_params, char **params)
+static void sdram_bist_nodma_handler(int nb_params, char **params)
 {
 	char *c;
-	int burst_length;
-	int random;
-	if (nb_params < 2) {
-		printf("sdram_bist <burst_length> <random>");
+	uint32_t length;
+	int amode = 1; /* default: increment */
+	int wmode = 1; /* default: write before each read */
+	uint32_t delay = 100000;
+
+	if (nb_params < 1) {
+		printf("sdram_bist <length> [<delay>] [<addr_mode>] [<write_mode>]\n");
+		printf("length    : DMA block size in bytes\n");
+		printf("delay     : number of clock cycles to delay after each check (default 100000)\n");
+		printf("addr_mode : 0=fixed (starts at zero), 1=inc (default: %d)\n", amode);
+		printf("write_mode: 0=write_once, 1=write_and_read (default: %d)", wmode);
 		return;
 	}
-	burst_length = strtoul(params[0], &c, 0);
+	length = strtoul(params[0], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect length");
+		return;
+	}
+	if (nb_params > 1) {
+		delay = strtoul(params[1], &c, 0);
+		if (*c != 0) {
+			printf("Incorrect addr_mode");
+			return;
+		}
+	}
+	if (nb_params > 2) {
+		amode = strtoul(params[2], &c, 0);
+		if (*c != 0) {
+			printf("Incorrect addr_mode");
+			return;
+		}
+	}
+	if (nb_params > 3) {
+		wmode = strtoul(params[3], &c, 0);
+		if (*c != 0) {
+			printf("Incorrect write_once");
+			return;
+		}
+	}
+	sdram_bist(length, delay, amode, wmode);
+}
+define_command(sdram_bist, sdram_bist_nodma_handler, "Run SDRAM Build-In Self-Test", LITEDRAM_CMDS);
+
+/**
+ * Command sdram_bist_writer
+ * 
+ * Start and end only the writer portion of the bist
+ * 
+*/
+static void sdram_bist_writer_handler(int nb_params, char **params)
+{
+	char *c;
+	uint32_t length;
+	uint32_t beg_addr;
+
+	if (nb_params < 2) {
+		printf("sdram_bist_writer <length> <beginning_address>\n");
+		printf("length : Length of burst writes to write\n");		
+		printf("beginning address : Starting address");		
+		return;
+	}
+	length = strtoul(params[0], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect length");
+		return;
+	}
+	beg_addr = strtoul(params[1], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect beginnning address");
+		return;
+	}
+	sdram_bist_writer(length, beg_addr);
+}
+define_command(sdram_bist_writer, sdram_bist_writer_handler, "Run BIST writer", LITEDRAM_CMDS);
+
+/**
+ * Command sdram_bist_reader
+ * 
+ * Start and end only the writer portion of the bist
+ * 
+*/
+static void sdram_bist_reader_handler(int nb_params, char **params)
+{
+	char *c;
+	uint32_t length;
+	uint32_t beg_addr;
+
+	if (nb_params < 2) {
+		printf("sdram_bist_reader <length> <beginning_address>\n");
+		printf("length : Length of burst writes to write\n");		
+		printf("beginning address : Starting address");		
+		return;
+	}
+	length = strtoul(params[0], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect length");
+		return;
+	}
+	beg_addr = strtoul(params[1], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect beginnning address");
+		return;
+	}
+	sdram_bist_reader(length, beg_addr);
+}
+define_command(sdram_bist_reader, sdram_bist_reader_handler, "Run BIST writer", LITEDRAM_CMDS);
+
+/**
+ * Command "sdram_bist_pat"
+ *
+ * Set SDRAM Built-In Self-Test (BIST) Pattern
+ *
+ */
+static void sdram_pat_handler(int nb_params, char **params)
+{
+	char *c;
+	uint32_t value;
+
+	if (nb_params < 1) {
+		printf("sdram_bist_pat <value>");
+		return;
+	}
+	value = strtoul(params[0], &c, 0);
 	if (*c != 0) {
 		printf("Incorrect burst_length");
 		return;
 	}
-	random = strtoul(params[1], &c, 0);
-	if (*c != 0) {
-		printf("Incorrect random");
-		return;
-	}
-	sdram_bist(burst_length, random);
+	sdram_bist_pattern(value);
 }
-define_command(sdram_bist, sdram_bist_handler, "Run SDRAM Build-In Self-Test", LITEDRAM_CMDS);
-#endif
+define_command(sdram_bist_pat, sdram_pat_handler, "Set SDRAM Build-In Self-Test Pattern", LITEDRAM_CMDS);
+
+
+/**
+ * Command "sdram_bist_info"
+ * 
+ * Get info about DRAM
+ * 
+*/
+define_command(sdram_bist_info, sdram_bist_info, "Get DRAM port addr width, data width", LITEDRAM_CMDS);
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
 
 /**
  * Command "sdram_hw_test"

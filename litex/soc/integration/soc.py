@@ -1471,6 +1471,7 @@ class LiteXSoC(SoC):
         from litedram.core import LiteDRAMCore
         from litedram.frontend.wishbone import LiteDRAMWishbone2Native
         from litedram.frontend.axi import LiteDRAMAXI2Native
+        from litedram.frontend.bist_nodma import DRAMBistFSM
         from litedram.frontend.bist import  LiteDRAMBISTGenerator, LiteDRAMBISTChecker
 
         # LiteDRAM core.
@@ -1505,10 +1506,13 @@ class LiteXSoC(SoC):
 
         # LiteDRAM BIST.
         if with_bist:
-            sdram_generator = LiteDRAMBISTGenerator(sdram.crossbar.get_port())
-            sdram_checker   = LiteDRAMBISTChecker(  sdram.crossbar.get_port())
-            self.add_module(name=f"{name}_generator", module=sdram_generator)
-            self.add_module(name=f"{name}_checker",   module=sdram_checker)
+
+            self.submodules.bist_nodma = DRAMBistFSM(sdram.crossbar.get_port())
+
+            # sdram_generator = LiteDRAMBISTGenerator(sdram.crossbar.get_port())
+            # sdram_checker   = LiteDRAMBISTChecker(  sdram.crossbar.get_port())
+            # self.add_module(name=f"{name}_generator", module=sdram_generator)
+            # self.add_module(name=f"{name}_checker",   module=sdram_checker)
 
         if not with_soc_interconnect: return
 
