@@ -13,7 +13,7 @@
 
 #include <liblitedram/sdram.h>
 #include <liblitedram/sdram_spd.h>
-#include <liblitedram/bist.h>
+#include <liblitedram/bist_nodma.h>
 #include <liblitedram/accessors.h>
 
 #include "../command.h"
