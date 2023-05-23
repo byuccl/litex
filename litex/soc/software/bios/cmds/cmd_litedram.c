@@ -160,7 +160,7 @@ static void sdram_bist_writer_handler(int nb_params, char **params)
 	uint32_t beg_addr;
 
 	if (nb_params < 2) {
-		printf("sdram_bist_writer <length> <beginning_address>\n");
+		printf("sdram_bist_writer <beginning_address> <length>\n");
 		printf("beginning address : Starting address\n");	
 		printf("length : Length of burst writes to write\n");			
 		return;
@@ -192,7 +192,7 @@ static void sdram_bist_reader_handler(int nb_params, char **params)
 	uint32_t beg_addr;
 
 	if (nb_params < 2) {
-		printf("sdram_bist_reader <length> <beginning_address>\n");
+		printf("sdram_bist_reader <beginning_address> <length>\n");
 		printf("beginning address : Starting address\n");	
 		printf("length : Length of burst writes to write\n");		
 			
