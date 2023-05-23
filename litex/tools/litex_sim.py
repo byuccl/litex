@@ -326,24 +326,39 @@ class SimSoC(SoCCore):
         # Analyzer ---------------------------------------------------------------------------------
         if with_analyzer:
             analyzer_signals = [
-                # IBus (could also just added as self.cpu.ibus)
-                self.cpu.ibus.stb,
-                self.cpu.ibus.cyc,
-                self.cpu.ibus.adr,
-                self.cpu.ibus.we,
-                self.cpu.ibus.ack,
-                self.cpu.ibus.sel,
-                self.cpu.ibus.dat_w,
-                self.cpu.ibus.dat_r,
-                # DBus (could also just added as self.cpu.dbus)
-                self.cpu.dbus.stb,
-                self.cpu.dbus.cyc,
-                self.cpu.dbus.adr,
-                self.cpu.dbus.we,
-                self.cpu.dbus.ack,
-                self.cpu.dbus.sel,
-                self.cpu.dbus.dat_w,
-                self.cpu.dbus.dat_r,
+                # # IBus (could also just added as self.cpu.ibus)
+                # self.cpu.ibus.stb,
+                # self.cpu.ibus.cyc,
+                # self.cpu.ibus.adr,
+                # self.cpu.ibus.we,
+                # self.cpu.ibus.ack,
+                # self.cpu.ibus.sel,
+                # self.cpu.ibus.dat_w,
+                # self.cpu.ibus.dat_r,
+                # # DBus (could also just added as self.cpu.dbus)
+                # self.cpu.dbus.stb,
+                # self.cpu.dbus.cyc,
+                # self.cpu.dbus.adr,
+                # self.cpu.dbus.we,
+                # self.cpu.dbus.ack,
+                # self.cpu.dbus.sel,
+                # self.cpu.dbus.dat_w,
+                # self.cpu.dbus.dat_r,
+
+                self.bist_nodma.dram_port_bist.cmd,
+                self.bist_nodma.dram_port_bist.rdata,
+                self.bist_nodma.dram_port_bist.wdata,
+                self.bist_nodma.dram_port_bist.flush,
+                self.bist_nodma.dram_port_bist.lock,
+                self.bist_nodma.state_num_sig.status,
+                self.bist_nodma.base_address.storage,
+                self.bist_nodma.burst_cntr_sig,
+                self.bist_nodma.error_ending_address.status,
+                self.bist_nodma.error_beginning_address.status,
+                self.bist_nodma.beginning_address.status,
+                self.bist_nodma.ending_address.status,
+
+                
             ]
             self.analyzer = LiteScopeAnalyzer(analyzer_signals,
                 depth        = 512,

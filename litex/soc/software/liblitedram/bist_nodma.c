@@ -23,6 +23,8 @@
 #define ACKNOWLEDGE_FLAG 1
 #define LOWER_FLAG 0
 #define START_BIST 1
+#define BYTE_INTERVALS 32
+#define CSR_DEFAULT_VAL 0
 
 #define CYCLES_UNTIL_DATA_DISPLAYED 100000
 #define CYCLES_DELAY_READ 100000000
@@ -124,7 +126,7 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
     bist_nodma_length_address_write(length);
     bist_nodma_base_address_write(beg_addr);
     printf("DRAM controller has address width %lu, data width %lu in bits\n", bist_nodma_bist_port_addr_width_read(), bist_nodma_bist_port_data_width_read());
-    printf("Reading from address %lx to address %lx\n", bist_nodma_base_address_read(), bist_nodma_length_address_read());
+    printf("Reading from address %lx to address %lx\n", bist_nodma_base_address_read(), bist_nodma_base_address_read() + bist_nodma_length_address_read());
 
     bist_nodma_start_write(START_BIST);
 
@@ -135,7 +137,7 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
 
         if (bist_nodma_error_found_flag_read()) {
             
-            printf("ERROR %lu: data read: ", bist_nodma_error_counter_read());
+            printf("ERROR at address 0x%lx: data read: ", bist_nodma_current_address_read());
 
             for (int i = 0; i < sizeof(data_output) / sizeof(*data_output); i++) 
             {
@@ -144,11 +146,11 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
                 }
             }
 
-            printf("\n         Expected: ");
+            printf("\n            Expected: ");
 
             for (int i = 0; i < sizeof(data_output) / sizeof(*data_output); i++) 
             {
-                if (bist_nodma_bist_port_data_width_read() >= i) {
+                if (bist_nodma_bist_port_data_width_read() >= ((i * BYTE_INTERVALS) + BYTE_INTERVALS)) {
                     printf("%lx ", bist_nodma_input_data_pattern_read());
                 }
             }
@@ -160,7 +162,6 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
 
         } else if (index % CYCLES_UNTIL_DATA_DISPLAYED == 0) {
             printf("%lx\n", bist_nodma_current_address_read());
-            printf("State: %lx\n", bist_nodma_state_num_sig_read());
         }
         ++index;
     }
@@ -243,10 +244,10 @@ void sdram_bist(uint32_t length, uint32_t delay, int amode, int wmode) {
             i++;
 
             // Write speed = Number of writes * Number of bytes per write * Clock frequency in MHz / Number of clock cycles for the write
-            uint64_t write_speed = (uint64_t)(bist_nodma_total_writes_read() * (bist_nodma_bist_port_data_width_read() / 8) * ((CONFIG_CLOCK_FREQUENCY/(1024*1024)) / bist_nodma_write_ticks_read()));
+            uint64_t write_speed = (uint64_t)((uint64_t)(bist_nodma_total_writes_read() * (bist_nodma_bist_port_data_width_read() / 8) * CONFIG_CLOCK_FREQUENCY) / (bist_nodma_write_ticks_read() * 1048576));
 
             // Read speed = Number of reads * Number of bytes per read * Clock frequency in MHz / Number of clock cycles for the read
-            uint64_t read_speed = (uint64_t)(bist_nodma_total_reads_read() * (bist_nodma_bist_port_data_width_read() / 8) * ((CONFIG_CLOCK_FREQUENCY/(1024*1024)) / bist_nodma_read_ticks_read()));
+            uint64_t read_speed = (uint64_t)((uint64_t)(bist_nodma_total_reads_read() * (bist_nodma_bist_port_data_width_read() / 8) * CONFIG_CLOCK_FREQUENCY) / (bist_nodma_read_ticks_read() * 1048576));
 
             printf("%12lu %12lu %12lu %12lu %16llu %16llu   0x%lx-0x%lx %10lu\n", 
                 bist_nodma_write_ticks_read(), 

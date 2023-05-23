@@ -111,7 +111,7 @@ static void sdram_bist_nodma_handler(int nb_params, char **params)
 
 	if (nb_params < 1) {
 		printf("sdram_bist <length> [<delay>] [<addr_mode>] [<write_mode>]\n");
-		printf("length    : DMA block size in bytes\n");
+		printf("length    : Number of transactions per read write (1 = %lx bytes)\n", bist_nodma_bist_port_data_width_read() / 8);
 		printf("delay     : number of clock cycles to delay after each check (default 100000)\n");
 		printf("addr_mode : 0=fixed (starts at zero), 1=inc (default: %d)\n", amode);
 		printf("write_mode: 0=write_once, 1=write_and_read (default: %d)", wmode);
@@ -161,18 +161,18 @@ static void sdram_bist_writer_handler(int nb_params, char **params)
 
 	if (nb_params < 2) {
 		printf("sdram_bist_writer <length> <beginning_address>\n");
-		printf("length : Length of burst writes to write\n");		
-		printf("beginning address : Starting address");		
+		printf("beginning address : Starting address\n");	
+		printf("length : Length of burst writes to write\n");			
 		return;
 	}
-	length = strtoul(params[0], &c, 0);
+	beg_addr = strtoul(params[0], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect beginning_address");
+		return;
+	}
+	length = strtoul(params[1], &c, 0);
 	if (*c != 0) {
 		printf("Incorrect length");
-		return;
-	}
-	beg_addr = strtoul(params[1], &c, 0);
-	if (*c != 0) {
-		printf("Incorrect beginnning address");
 		return;
 	}
 	sdram_bist_writer(length, beg_addr);
@@ -193,18 +193,19 @@ static void sdram_bist_reader_handler(int nb_params, char **params)
 
 	if (nb_params < 2) {
 		printf("sdram_bist_reader <length> <beginning_address>\n");
+		printf("beginning address : Starting address\n");	
 		printf("length : Length of burst writes to write\n");		
-		printf("beginning address : Starting address");		
+			
 		return;
 	}
-	length = strtoul(params[0], &c, 0);
+	beg_addr = strtoul(params[0], &c, 0);
 	if (*c != 0) {
-		printf("Incorrect length");
+		printf("Incorrect beginning_address");
 		return;
 	}
-	beg_addr = strtoul(params[1], &c, 0);
+	length = strtoul(params[1], &c, 0);
 	if (*c != 0) {
-		printf("Incorrect beginnning address");
+		printf("Incorrect length address");
 		return;
 	}
 	sdram_bist_reader(length, beg_addr);
