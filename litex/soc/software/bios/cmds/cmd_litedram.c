@@ -15,6 +15,7 @@
 #include <liblitedram/sdram_spd.h>
 #include <liblitedram/bist.h>
 #include <liblitedram/accessors.h>
+#include <liblitedram/ecctest.h>
 
 #include "../command.h"
 #include "../helpers.h"
