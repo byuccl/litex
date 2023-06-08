@@ -234,7 +234,7 @@ void sdram_bist(uint32_t length, uint32_t delay, int amode, int wmode) {
     bist_nodma_base_address_write(start_address);
     // bist_nodma_end_address_write(0x1f);
     // bist_nodma_length_address_write(0xf);
-    bist_nodma_max_delay_ticks_write(delay);
+    bist_nodma_seconds_delay_write(delay);
 
 
     // Print title

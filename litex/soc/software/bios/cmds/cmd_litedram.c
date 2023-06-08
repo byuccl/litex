@@ -107,7 +107,7 @@ static void sdram_bist_nodma_handler(int nb_params, char **params)
 	uint32_t length;
 	int amode = 1; /* default: increment */
 	int wmode = 1; /* default: write before each read */
-	uint32_t delay = 100000;
+	uint32_t delay = 0;
 
 	if (nb_params < 1) {
 		printf("sdram_bist <length> [<delay>] [<addr_mode>] [<write_mode>]\n");

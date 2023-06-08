@@ -1507,7 +1507,7 @@ class LiteXSoC(SoC):
         # LiteDRAM BIST.
         if with_bist:
 
-            self.submodules.bist_nodma = DRAMBistFSM(sdram.crossbar.get_port())
+            self.submodules.bist_nodma = DRAMBistFSM(sdram.crossbar.get_port(), self.sys_clk_freq)
 
             # sdram_generator = LiteDRAMBISTGenerator(sdram.crossbar.get_port())
             # sdram_checker   = LiteDRAMBISTChecker(  sdram.crossbar.get_port())
