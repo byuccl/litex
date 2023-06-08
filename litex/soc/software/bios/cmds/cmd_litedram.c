@@ -112,7 +112,7 @@ static void sdram_bist_nodma_handler(int nb_params, char **params)
 	if (nb_params < 1) {
 		printf("sdram_bist <length> [<delay>] [<addr_mode>] [<write_mode>]\n");
 		printf("length    : Number of transactions per read write (1 = %lx bytes)\n", bist_nodma_bist_port_data_width_read() / 8);
-		printf("delay     : number of clock cycles to delay after each check (default: %ld)\n", delay);
+		printf("delay     : Number of seconds to delay after each check (default: %ld)\n", delay);
 		printf("addr_mode : 0=fixed (starts at zero), 1=inc (default: %d)\n", amode);
 		printf("write_mode: 0=write_once_read_always, 1=write_and_read_always (default: %d)", wmode);
 		return;
