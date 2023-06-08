@@ -84,7 +84,7 @@ void sdram_bist_writer(uint32_t length, uint32_t beg_addr) {
     printf("Done\n");
 
     // Print stats
-    printf(" WRITE TICKS   READ TICKS TOTAL WRITES  TOTAL READS  WR-SPEED(KiB/s)  RD-SPEED(KiB/s)      ADDRESSES TESTED     ERRORS\n");
+    printf(" WRITE TICKS   READ TICKS TOTAL WRITES  TOTAL READS  WR-SPEED(MiB/s)  RD-SPEED(MiB/s)      ADDRESSES TESTED     ERRORS\n");
 
     // Write speed = Number of writes * Number of bytes per write * Clock frequency in MHz / Number of clock cycles for the write
     uint64_t write_speed = 0;
@@ -179,7 +179,7 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
     printf("Done reading\n");
 
     // Print stats
-    printf(" WRITE TICKS   READ TICKS TOTAL WRITES  TOTAL READS  WR-SPEED(KiB/s)  RD-SPEED(KiB/s)      ADDRESSES TESTED     ERRORS\n");
+    printf(" WRITE TICKS   READ TICKS TOTAL WRITES  TOTAL READS  WR-SPEED(MiB/s)  RD-SPEED(MiB/s)      ADDRESSES TESTED     ERRORS\n");
 
     // Write speed = Number of writes * Number of bytes per write * Clock frequency in MHz / Number of clock cycles for the write
     uint64_t write_speed = 0;
@@ -253,7 +253,7 @@ void sdram_bist(uint32_t length, uint32_t delay, int amode, int wmode) {
 
         // Every 8 times 
         if(i % (PRINT_TITLE_NUM_CYCLES + 1) == 0) {
-            printf(" WRITE TICKS   READ TICKS TOTAL WRITES  TOTAL READS  WR-SPEED(KiB/s)  RD-SPEED(KiB/s)      ADDRESSES TESTED     ERRORS\n");
+            printf(" WRITE TICKS   READ TICKS TOTAL WRITES  TOTAL READS  WR-SPEED(MiB/s)  RD-SPEED(MiB/s)      ADDRESSES TESTED     ERRORS\n");
             i++;
         }
 
