@@ -357,6 +357,7 @@ class SimSoC(SoCCore):
                 self.bist_nodma.error_beginning_address.status,
                 self.bist_nodma.beginning_address.status,
                 self.bist_nodma.ending_address.status,
+                self.bist_nodma.error_found_flag.status
 
                 
             ]
