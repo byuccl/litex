@@ -92,11 +92,12 @@ void sdram_bist_writer(uint32_t length, uint32_t beg_addr) {
     uint64_t read_speed = 0;
 
     // Only calculate speeds if number of ticks is greater than zero.
+    // Only calculate speeds if number of ticks is greater than zero.
     if (bist_nodma_write_ticks_read() > 0) {
-        write_speed = (uint64_t)((uint64_t)(bist_nodma_total_writes_read() * (bist_nodma_bist_port_data_width_read() / 8) * (CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / bist_nodma_write_ticks_read());
+        write_speed = (uint64_t)((uint64_t)(bist_nodma_total_writes_read() * (uint64_t)(bist_nodma_bist_port_data_width_read() / 8) * (uint64_t)(CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / (uint64_t)bist_nodma_write_ticks_read());
     }
     if (bist_nodma_read_ticks_read() > 0) {
-        read_speed = (uint64_t)((uint64_t)(bist_nodma_total_reads_read() * (bist_nodma_bist_port_data_width_read() / 8) * (CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / bist_nodma_read_ticks_read());
+        read_speed = (uint64_t)((uint64_t)(bist_nodma_total_reads_read() * (uint64_t)(bist_nodma_bist_port_data_width_read() / 8) * (uint64_t)(CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / (uint64_t)bist_nodma_read_ticks_read());
     }
     
 
@@ -188,10 +189,10 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
 
     // Only calculate speeds if number of ticks is greater than zero.
     if (bist_nodma_write_ticks_read() > 0) {
-        write_speed = (uint64_t)((uint64_t)(bist_nodma_total_writes_read() * (bist_nodma_bist_port_data_width_read() / 8) * (CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / bist_nodma_write_ticks_read());
+        write_speed = (uint64_t)((uint64_t)(bist_nodma_total_writes_read() * (uint64_t)(bist_nodma_bist_port_data_width_read() / 8) * (uint64_t)(CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / (uint64_t)bist_nodma_write_ticks_read());
     }
     if (bist_nodma_read_ticks_read() > 0) {
-        read_speed = (uint64_t)((uint64_t)(bist_nodma_total_reads_read() * (bist_nodma_bist_port_data_width_read() / 8) * (CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / bist_nodma_read_ticks_read());
+        read_speed = (uint64_t)((uint64_t)(bist_nodma_total_reads_read() * (uint64_t)(bist_nodma_bist_port_data_width_read() / 8) * (uint64_t)(CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / (uint64_t)bist_nodma_read_ticks_read());
     }
 
     printf("%12lu %12lu %12lu %12lu %16llu %16llu   0x%07lx-0x%07lx %10lu\n", 
@@ -266,12 +267,13 @@ void sdram_bist(uint32_t length, uint32_t delay, int amode, int wmode) {
             uint64_t read_speed = 0;
 
             // Only calculate speeds if number of ticks is greater than zero.
-            if (bist_nodma_write_ticks_read() > 0) {
-                write_speed = (uint64_t)((uint64_t)(bist_nodma_total_writes_read() * (bist_nodma_bist_port_data_width_read() / 8) * (CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / bist_nodma_write_ticks_read());
-            }
-            if (bist_nodma_read_ticks_read() > 0) {
-                read_speed = (uint64_t)((uint64_t)(bist_nodma_total_reads_read() * (bist_nodma_bist_port_data_width_read() / 8) * (CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / bist_nodma_read_ticks_read());
-            }
+            // Only calculate speeds if number of ticks is greater than zero.
+    if (bist_nodma_write_ticks_read() > 0) {
+        write_speed = (uint64_t)((uint64_t)(bist_nodma_total_writes_read() * (uint64_t)(bist_nodma_bist_port_data_width_read() / 8) * (uint64_t)(CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / (uint64_t)bist_nodma_write_ticks_read());
+    }
+    if (bist_nodma_read_ticks_read() > 0) {
+        read_speed = (uint64_t)((uint64_t)(bist_nodma_total_reads_read() * (uint64_t)(bist_nodma_bist_port_data_width_read() / 8) * (uint64_t)(CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / (uint64_t)bist_nodma_read_ticks_read());
+    }
 
             printf("%12lu %12lu %12lu %12lu %16llu %16llu   0x%07lx-0x%07lx %10lu\n", 
                 bist_nodma_write_ticks_read(), 
