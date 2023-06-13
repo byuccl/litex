@@ -356,9 +356,14 @@ class SimSoC(SoCCore):
                 self.bist_nodma.error_ending_address.status,
                 self.bist_nodma.error_beginning_address.status,
                 self.bist_nodma.beginning_address.status,
+                self.bist_nodma.current_address.status,
                 self.bist_nodma.ending_address.status,
-                self.bist_nodma.error_found_flag.status
-
+                self.bist_nodma.error_found_flag.status,
+                self.bist_nodma.read_always_flag_sig,
+                self.bist_nodma.scrubbing_flag_sig,
+                self.bist_nodma.chooser_cntr_sig,
+                self.bist_nodma.error_flag_sig,
+                self.bist_nodma.data_sig,
                 
             ]
             self.analyzer = LiteScopeAnalyzer(analyzer_signals,
