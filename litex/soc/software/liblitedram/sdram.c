@@ -521,12 +521,15 @@ static void sdram_leveling_center_module(
 		int retries = 8; /* Do N configs/checks and give up if failing */
 		while (retries > 0) {
 			/* Set delay. */
-			sdram_leveling_action(module, dq_line, rst_delay);
-			cdelay(100);
-			for(i = 0; i < delay_mid; i++) {
-				sdram_leveling_action(module, dq_line, inc_delay);
-				cdelay(100);
-			}
+			// sdram_leveling_action(module, dq_line, rst_delay);
+			// cdelay(100);
+			// for(i = 0; i < delay_mid; i++) {
+			// 	sdram_leveling_action(module, dq_line, inc_delay);
+			// 	cdelay(100);
+			// }
+
+			// NOTE: Alternative setting hack for experiment only.
+			sdram_delay_load(module, delay_mid, true);
 
 			/* Check */
 			errors = run_test_pattern(module, dq_line);
