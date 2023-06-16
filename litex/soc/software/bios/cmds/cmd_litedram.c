@@ -392,6 +392,36 @@ define_command(sdram_force_cmd_delay, sdram_force_cmd_delay_handler, "Force writ
 
 #endif
 
+/**
+ * Command "sdram_mr_scrub"
+ *
+ * Reset SDRAM Mode Register to defaults.
+ *
+ */
+#if defined(CSR_SDRAM_BASE)
+static void sdram_mr_scrub_handler(int nb_params, char **params)
+{
+	sdram_software_control_on();
+	sdram_mode_register_scrub();
+	sdram_software_control_off();
+}
+define_command(sdram_mr_scrub, sdram_mr_scrub_handler, "Reset SDRAM Mode Register to defaults.", LITEDRAM_CMDS);
+#endif
+
+/**
+ * Command "sdram_delay_scrub"
+ * 
+ * Set SDRAM delay to last known good configuration.
+ * 
+ */
+#if defined(CSR_SDRAM_BASE) && defined(CSR_DDRPHY_BASE)
+static void sdram_scrub_delay_handler(int nb_params, char **params)
+{
+	sdram_delay_scrub();
+}
+define_command(sdram_delay_scrub, sdram_scrub_delay_handler, "Set SDRAM delay to last known good configuration.", LITEDRAM_CMDS);
+#endif
+
 #if defined(CSR_SDRAM_BASE)
 /**
  * Command "sdram_init"

@@ -260,6 +260,18 @@ void sdram_mode_register_write(char reg, int value) {
 	command_p0(DFII_COMMAND_RAS|DFII_COMMAND_CAS|DFII_COMMAND_WE|DFII_COMMAND_CS);
 }
 
+
+///////////////////////////////////////////////////////////////////////////
+// Added command to run init sequence
+///////////////////////////////////////////////////////////////////////////
+
+void sdram_mode_register_scrub(void) {
+	printf("Setting SDRAM Mode Register to defaults.\n");
+	init_sequence();
+}
+
+///////////////////////////////////////////////////////////////////////////
+
 #ifdef CSR_DDRPHY_BASE
 
 /*-----------------------------------------------------------------------*/
@@ -865,6 +877,44 @@ int sdram_write_leveling(void) {
 /* Read Leveling                                                         */
 /*-----------------------------------------------------------------------*/
 
+///////////////////////////////////////////////////////////////////////////
+// Added commands for delay scrubbing
+///////////////////////////////////////////////////////////////////////////
+
+static void sdram_read_leveling_rst_delay(int module) {
+	/* Select module */
+	ddrphy_dly_sel_write(1 << module);
+
+	/* Reset delay */
+	ddrphy_rdly_dq_rst_write(1);
+
+	/* Un-select module */
+	ddrphy_dly_sel_write(0);
+
+#if defined(SDRAM_PHY_ECP5DDRPHY) || defined(SDRAM_PHY_GW2DDRPHY)
+	/* Sync all DQSBUFM's, By toggling all dly_sel (DQSBUFM.PAUSE) lines. */
+	ddrphy_dly_sel_write(0xff);
+	ddrphy_dly_sel_write(0);
+#endif
+}
+
+static void sdram_read_leveling_inc_delay(int module) {
+	/* Select module */
+	ddrphy_dly_sel_write(1 << module);
+
+	/* Increment delay */
+	ddrphy_rdly_dq_inc_write(1);
+
+	/* Un-select module */
+	ddrphy_dly_sel_write(0);
+
+#if defined(SDRAM_PHY_ECP5DDRPHY) || defined(SDRAM_PHY_GW2DDRPHY)
+	/* Sync all DQSBUFM's, By toggling all dly_sel (DQSBUFM.PAUSE) lines. */
+	ddrphy_dly_sel_write(0xff);
+	ddrphy_dly_sel_write(0);
+#endif
+}
+
 #if defined(SDRAM_PHY_WRITE_DQ_DQS_TRAINING_CAPABLE) || defined(SDRAM_PHY_WRITE_LATENCY_CALIBRATION_CAPABLE) || defined(SDRAM_PHY_READ_LEVELING_CAPABLE)
 
 static unsigned int sdram_read_leveling_scan_module(int module, int bitslip, int show, int dq_line) {
@@ -894,6 +944,32 @@ static unsigned int sdram_read_leveling_scan_module(int module, int bitslip, int
 		printf("| ");
 
 	return score;
+}
+
+void sdram_delay_set(int module, int target_delay) {
+	// NOTE: sdram_leveling_center_module uses callbacks
+	//       so this is an experiment-specific hack until
+	//       generalized.
+	sdram_read_leveling_rst_delay(module);
+	// Omitted cdelay(100); here.
+	for (int delay=0; delay<target_delay; delay++)
+		sdram_read_leveling_inc_delay(module);
+		// Omitted cdelay(100); after increment.
+}
+
+void sdram_delay_load(int module, int target_delay, bool save) {
+	// Create storage for delay values.
+	static int saved_delay[SDRAM_PHY_MODULES];
+	// Update values (on calibration).
+	if (save)
+		saved_delay[module] = target_delay;
+	// Load delay from saved value.
+	sdram_delay_set(module, saved_delay[module]);
+}
+
+void sdram_delay_scrub(void) {
+	for (int module=0; module<SDRAM_PHY_MODULES; module++)
+		sdram_delay_load(module, 0, false);
 }
 
 #endif // defined(SDRAM_PHY_WRITE_DQ_DQS_TRAINING_CAPABLE) || defined(SDRAM_PHY_WRITE_LATENCY_CALIBRATION_CAPABLE) || defined(SDRAM_PHY_READ_LEVELING_CAPABLE)

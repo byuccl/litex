@@ -25,6 +25,7 @@ void sdram_software_control_off(void);
 /* Mode Register                                                         */
 /*-----------------------------------------------------------------------*/
 void sdram_mode_register_write(char reg, int value);
+void sdram_mode_register_scrub(void);
 
 /*-----------------------------------------------------------------------*/
 /* Write Leveling                                                        */
@@ -37,6 +38,13 @@ int sdram_write_leveling(void);
 /* Read Leveling                                                         */
 /*-----------------------------------------------------------------------*/
 void sdram_read_leveling(void);
+
+/*-----------------------------------------------------------------------*/
+/* Delays                                                                */
+/*-----------------------------------------------------------------------*/
+void sdram_delay_scrub(void);
+void sdram_delay_load(int module, int target_delay, bool save);
+void sdram_delay_set(int module, int target_delay);
 
 /*-----------------------------------------------------------------------*/
 /* Leveling                                                              */
