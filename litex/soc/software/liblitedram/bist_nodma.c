@@ -139,14 +139,32 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
 
     bist_nodma_start_write(START_BIST);
 
-    printf("Current address:\n");
-
-    // uint64_t index = 0;
+    uint8_t firsterror_index = 0;
     while(bist_nodma_reader_finished_state_read() == 0) {
 
         if (bist_nodma_error_found_flag_read()) {
+
+            if (firsterror_index == 0) {
+
+                // In the beginning, print the data expected
+                printf("Errors found. Data expected: ")
+                for (int i = 0; i < sizeof(data_output) / sizeof(*data_output); i++) 
+                {
+                    if (bist_nodma_bist_port_data_width_read() >= ((i * BYTE_INTERVALS) + BYTE_INTERVALS)) {
+                        printf("%8lx ", bist_nodma_input_data_pattern_read());
+                    }
+                }
+
+                // Then print the range of errors
+                printf("\nError address range: 0x%lx-0x%lx, Num Errors: %d")
+
+                // And also print a column of addresses and data expected
+                printf("\n ADDRESS   DATA")
+
+                firsterror_index++;
+            }
             
-            printf("ERROR at address 0x%07lx: data read: ", bist_nodma_current_address_read());
+            printf(" %07lx ", bist_nodma_current_address_read());
 
             for (int i = 0; i < sizeof(data_output) / sizeof(*data_output); i++) 
             {
@@ -155,14 +173,7 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
                 }
             }
 
-            printf("\n                             Expected: ");
-
-            for (int i = 0; i < sizeof(data_output) / sizeof(*data_output); i++) 
-            {
-                if (bist_nodma_bist_port_data_width_read() >= ((i * BYTE_INTERVALS) + BYTE_INTERVALS)) {
-                    printf("%8lx ", bist_nodma_input_data_pattern_read());
-                }
-            }
+            
 
             printf("\n");
 
@@ -176,8 +187,6 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
         // }
         // ++index;
     }
-
-    printf("Done reading\n");
 
     // Print stats
     printf(" WRITE TICKS   READ TICKS TOTAL WRITES  TOTAL READS  WR-SPEED(MiB/s)  RD-SPEED(MiB/s)      ADDRESSES TESTED     ERRORS\n");
