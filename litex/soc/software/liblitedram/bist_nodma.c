@@ -147,7 +147,7 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
             if (firsterror_index == 0) {
 
                 // In the beginning, print the data expected
-                printf("Errors found. Data expected: ")
+                printf("Errors found. Data expected: ");
                 for (int i = 0; i < sizeof(data_output) / sizeof(*data_output); i++) 
                 {
                     if (bist_nodma_bist_port_data_width_read() >= ((i * BYTE_INTERVALS) + BYTE_INTERVALS)) {
@@ -156,10 +156,10 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr) {
                 }
 
                 // Then print the range of errors
-                printf("\nError address range: 0x%lx-0x%lx, Num Errors: %d")
+                printf("\nError address range: 0x%lx-0x%lx, Num Errors: %ld", bist_nodma_error_beginning_address_read(), bist_nodma_error_ending_address_read(), bist_nodma_error_counter_read());
 
                 // And also print a column of addresses and data expected
-                printf("\n ADDRESS   DATA")
+                printf("\n ADDRESS   DATA");
 
                 firsterror_index++;
             }
@@ -249,7 +249,7 @@ void sdram_bist(uint32_t length, uint32_t delay, int amode, int wmode) {
 
     // Print title
     printf("DRAM controller has address width %lu, data width %lu in bits\n", bist_nodma_bist_port_addr_width_read(), bist_nodma_bist_port_data_width_read());
-    printf("Starting Bist with length %lu, address mode %d, wmode %d\n", length, amode, wmode);
+    printf("Starting Bist with length %lu, address mode %d, wmode %d at clock frequency %d\n", length, amode, wmode, CONFIG_CLOCK_FREQUENCY);
     
     bist_nodma_start_write(START_BIST);
 
