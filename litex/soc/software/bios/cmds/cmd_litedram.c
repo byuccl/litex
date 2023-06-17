@@ -105,16 +105,18 @@ static void sdram_bist_nodma_handler(int nb_params, char **params)
 {
 	char *c;
 	uint32_t length;
-	int amode = 1; /* default: increment */
-	int wmode = 1; /* default: write before each read */
-	uint32_t delay = 0;
+	int amode = 1;                  /* default: increment */
+	int wmode = 0;                  /* default: write before each read */
+	uint32_t delay = 0;             /* default: delay 0 seconds during transaction */
+	uint32_t max_error_output = 0xfffffff;  /* default: print all errors */
 
 	if (nb_params < 1) {
-		printf("sdram_bist <length> [<delay>] [<addr_mode>] [<write_mode>]\n");
-		printf("length    : Number of transactions per read write (1 = %lx bytes)\n", bist_nodma_bist_port_data_width_read() / 8);
-		printf("delay     : Number of seconds to delay after each check (default: %ld)\n", delay);
-		printf("addr_mode : 0=fixed (starts at zero), 1=inc (default: %d)\n", amode);
-		printf("write_mode: 0=write_once_read_always, 1=write_and_read_always (default: %d)", wmode);
+		printf("sdram_bist <length> [<addr_mode>] [<write_mode>] [<delay>]\n");
+		printf("length       : Number of transactions per read write (1 = %lx bits)\n", bist_nodma_bist_port_data_width_read());
+		printf("max_error_out: Max number of errors to display (default: %ld)\n", max_error_output);
+		printf("addr_mode    : 0=fixed (starts at zero), 1=inc (default: %d)\n", amode);
+		printf("write_mode   : 0=write_once_read_always, 1=write_and_read_always (default: %d)\n", wmode);
+		printf("delay        : Number of seconds to delay after each check (default: %ld)\n", delay);
 		return;
 	}
 	length = strtoul(params[0], &c, 0);
@@ -123,9 +125,9 @@ static void sdram_bist_nodma_handler(int nb_params, char **params)
 		return;
 	}
 	if (nb_params > 1) {
-		delay = strtoul(params[1], &c, 0);
+		max_error_output = strtoul(params[1], &c, 0);
 		if (*c != 0) {
-			printf("Incorrect delay");
+			printf("Incorrect max_error_output");
 			return;
 		}
 	}
@@ -143,7 +145,14 @@ static void sdram_bist_nodma_handler(int nb_params, char **params)
 			return;
 		}
 	}
-	sdram_bist(length, delay, amode, wmode);
+	if (nb_params > 4) {
+		delay = strtoul(params[3], &c, 0);
+		if (*c != 0) {
+			printf("Incorrect delay");
+			return;
+		}
+	}
+	sdram_bist(length, delay, amode, wmode, max_error_output);
 }
 define_command(sdram_bist, sdram_bist_nodma_handler, "Run SDRAM Build-In Self-Test", LITEDRAM_CMDS);
 
@@ -190,12 +199,13 @@ static void sdram_bist_reader_handler(int nb_params, char **params)
 	char *c;
 	uint32_t length;
 	uint32_t beg_addr;
+	uint32_t max_error_output = 0xfffffff;  /* default: print all errors */
 
 	if (nb_params < 2) {
 		printf("sdram_bist_reader <beginning_address> <length>\n");
 		printf("beginning address : Starting address\n");	
-		printf("length : Length of burst writes to write\n");		
-			
+		printf("length : Length of burst writes to write\n");	
+		printf("max_error_out: Max number of errors to display (default: %ld)\n", max_error_output);
 		return;
 	}
 	beg_addr = strtoul(params[0], &c, 0);
@@ -208,7 +218,14 @@ static void sdram_bist_reader_handler(int nb_params, char **params)
 		printf("Incorrect length address");
 		return;
 	}
-	sdram_bist_reader(length, beg_addr);
+	if (nb_params > 2) {
+		max_error_output = strtoul(params[2], &c, 0);
+		if (*c != 0) {
+			printf("Incorrect max_error_output");
+			return;
+		}
+	}
+	sdram_bist_reader(length, beg_addr, max_error_output);
 }
 define_command(sdram_bist_reader, sdram_bist_reader_handler, "Run BIST writer", LITEDRAM_CMDS);
 
