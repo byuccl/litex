@@ -83,6 +83,7 @@ void sdram_bist_writer(uint32_t length, uint32_t beg_addr) {
     bist_nodma_write_only_mode_write(ACKNOWLEDGE_FLAG);
     bist_nodma_length_address_write(length);
     bist_nodma_base_address_write(beg_addr);
+    bist_nodma_base_length_diff_write(bist_nodma_length_address_read());
     printf("DRAM controller has address width %lu, data width %lu in bits\n", bist_nodma_bist_port_addr_width_read(), bist_nodma_bist_port_data_width_read());
     printf("Writing from address %lx to address %lx ...", bist_nodma_base_address_read(), bist_nodma_length_address_read());
 
@@ -146,6 +147,7 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr, uint32_t err_max_cnt)
     bist_nodma_reader_only_mode_write(ACKNOWLEDGE_FLAG);
     bist_nodma_length_address_write(length);
     bist_nodma_base_address_write(beg_addr);
+    bist_nodma_base_length_diff_write(bist_nodma_length_address_read());
     printf("DRAM controller has address width %lu, data width %lu in bits\n", bist_nodma_bist_port_addr_width_read(), bist_nodma_bist_port_data_width_read());
     printf("Reading from address %lx to address %lx\n", bist_nodma_base_address_read(), bist_nodma_base_address_read() + bist_nodma_length_address_read());
 
@@ -159,7 +161,7 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr, uint32_t err_max_cnt)
             if (firsterror_index == 0) {
 
                 // Print the range of errors
-                printf("\nError address range: 0x%lx-0x%lx, Num Errors: %ld ", bist_nodma_error_beginning_address_read(), bist_nodma_error_ending_address_read(), bist_nodma_error_counter_read());
+                printf("\nError address range: 0x%lx-0x%lx, Num Errors: %ld, ", bist_nodma_error_beginning_address_read(), bist_nodma_error_ending_address_read(), bist_nodma_error_counter_read());
 
                 // Print data expected
                 printf("Data expected: \n\n");
@@ -244,15 +246,13 @@ void sdram_bist_reader(uint32_t length, uint32_t beg_addr, uint32_t err_max_cnt)
 
 
 
-void sdram_bist(uint32_t length, uint32_t delay, int amode, int wmode, uint32_t err_max_cnt) {
+void sdram_bist(uint32_t base_addr, uint32_t length, uint32_t delay, int amode, int wmode, uint32_t err_max_cnt, int error_break) {
     bist_nodma_error_max_count_write(err_max_cnt);
     bist_nodma_length_address_write(length);
     bist_nodma_address_mode_write(amode);
     bist_nodma_wr_mode_write(wmode);
-
-    uint32_t start_address = 0x0;
-
-    bist_nodma_base_address_write(start_address);
+    bist_nodma_base_length_diff_write(bist_nodma_length_address_read());
+    bist_nodma_base_address_write(base_addr);
     // bist_nodma_end_address_write(0x1f);
     // bist_nodma_length_address_write(0xf);
     bist_nodma_seconds_delay_write(delay);
@@ -282,7 +282,6 @@ void sdram_bist(uint32_t length, uint32_t delay, int amode, int wmode, uint32_t 
 
         if (bist_nodma_data_pause_display_flag_read()) {
             i++;
-            firsterror_index = 0;
 
             // Write speed = Number of writes * Number of bytes per write * Clock frequency in MHz / Number of clock cycles for the write
             uint64_t write_speed = 0;
@@ -309,6 +308,12 @@ void sdram_bist(uint32_t length, uint32_t delay, int amode, int wmode, uint32_t 
                 bist_nodma_ending_address_read(),
                 bist_nodma_error_counter_read());
 
+            if(firsterror_index > 0 && error_break) {
+                break;
+            } 
+
+            firsterror_index = 0;
+
             bist_nodma_data_acknowledge_flag_write(ACKNOWLEDGE_FLAG);
             bist_nodma_data_acknowledge_flag_write(LOWER_FLAG);
 
@@ -317,7 +322,7 @@ void sdram_bist(uint32_t length, uint32_t delay, int amode, int wmode, uint32_t 
             if (firsterror_index == 0) {
 
                 // Print the range of errors
-                printf("\nError address range: 0x%lx-0x%lx, Num Errors: %ld ", bist_nodma_error_beginning_address_read(), bist_nodma_error_ending_address_read(), bist_nodma_error_counter_read());
+                printf("\nError address range: 0x%lx-0x%lx, Num Errors: %ld, ", bist_nodma_error_beginning_address_read(), bist_nodma_error_ending_address_read(), bist_nodma_error_counter_read());
 
                 // Print data expected
                 printf("Data expected: \n\n");
@@ -329,7 +334,7 @@ void sdram_bist(uint32_t length, uint32_t delay, int amode, int wmode, uint32_t 
                 }
 
                 // And also print a column of addresses and data expected
-                printf("\n   ADDRESS    DATA\n");
+                printf("\n\n   ADDRESS    DATA\n");
 
                 firsterror_index++;
             }

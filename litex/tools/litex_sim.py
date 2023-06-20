@@ -366,6 +366,7 @@ class SimSoC(SoCCore):
                 self.bist_nodma.data_sig,
                 self.bist_nodma.error_max_count.storage,
                 self.bist_nodma.error_display_counter_sig,
+                self.bist_nodma.base_length_diff.storage,
                 
             ]
             self.analyzer = LiteScopeAnalyzer(analyzer_signals,
