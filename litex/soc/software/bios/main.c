@@ -179,6 +179,13 @@ __attribute__((__used__)) int main(int i, char **c)
 
 	/* Initialize and test DRAM */
 #ifdef CSR_SDRAM_BASE
+
+	///////////////////////////////////
+	// Added function
+	///////////////////////////////////
+	sdram_trefi_csr_write(782);
+	///////////////////////////////////
+
 	sdr_ok = sdram_init();
 #else
 	/* Test Main RAM when present and not pre-initialized */

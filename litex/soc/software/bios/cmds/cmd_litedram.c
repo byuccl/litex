@@ -55,7 +55,38 @@ static void sdram_cdelay_test(int nb_params, char **params)
 define_command(sdram_cdelay, sdram_cdelay_test, "Run cdelay test", LITEDRAM_CMDS);
 
 
+/**
+* Command "sdram_refresh_set"
+*
+* Set refresh rate
+*/
+static void sdram_refresh_rate_setter(int nb_params, char **params)
+{
+	char *c;
+	uint32_t sdram_refresh_rate;
+	if (nb_params < 1) {
+		printf("sdram_refresh_rate <refresh_rate>");
+		return;
+	}
+	sdram_refresh_rate = strtoul(params[0], &c, 0);
+	if (*c != 0) {
+		printf("Incorrect refresh rate");
+		return;
+	}
+	sdram_trefi_csr_write(sdram_refresh_rate);
+}
+define_command(sdram_refresh_set, sdram_refresh_rate_setter, "Set refresh rate", LITEDRAM_CMDS);
 
+/**
+* Command "sdram_refresh_get"
+*
+* Get refresh rate
+*/
+static void sdram_refresh_rate_getter(int nb_params, char **params)
+{
+	printf("Current refresh rate: %ld\n", sdram_trefi_csr_read());
+}
+define_command(sdram_refresh_get, sdram_refresh_rate_getter, "Get refresh rate", LITEDRAM_CMDS);
 
 // /**
 //  * Command "sdram_bist"
