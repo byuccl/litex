@@ -73,7 +73,14 @@ static void sdram_refresh_rate_setter(int nb_params, char **params)
 		printf("Incorrect refresh rate");
 		return;
 	}
-	sdram_trefi_csr_write(sdram_refresh_rate);
+	
+	// Disable refresh if set to zero, else enable it and set refresh rate
+	if (sdram_refresh_rate == 0) {
+		sdram_refresh_enable_write(0);
+	} else {
+		sdram_refresh_enable_write(1);
+		sdram_trefi_csr_write(sdram_refresh_rate);
+	}
 }
 define_command(sdram_refresh_set, sdram_refresh_rate_setter, "Set refresh rate", LITEDRAM_CMDS);
 
@@ -84,7 +91,11 @@ define_command(sdram_refresh_set, sdram_refresh_rate_setter, "Set refresh rate",
 */
 static void sdram_refresh_rate_getter(int nb_params, char **params)
 {
-	printf("Current refresh rate: %ld\n", sdram_trefi_csr_read());
+	if (sdram_refresh_enable_read() == 0) {
+		printf("Refresh disabled\n");
+	} else {
+		printf("Current refresh rate: %ld\n", sdram_trefi_csr_read());
+	}
 }
 define_command(sdram_refresh_get, sdram_refresh_rate_getter, "Get refresh rate", LITEDRAM_CMDS);
 
