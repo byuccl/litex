@@ -184,7 +184,7 @@ __attribute__((__used__)) int main(int i, char **c)
 	// Added function
 	///////////////////////////////////
 	sdram_trefi_csr_write(1); // For the huge refresh rates
-	// sdram_trefi_csr_write(586); // nexys4ddr rate: 586, nexys_video rate: 782
+	// sdram_trefi_csr_write(782); // nexys4ddr rate: 586, nexys_video rate: 782
 	///////////////////////////////////
 
 	sdr_ok = sdram_init();
