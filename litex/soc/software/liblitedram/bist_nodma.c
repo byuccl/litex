@@ -123,6 +123,9 @@ void sdram_bist_writer(uint32_t length, uint32_t beg_addr) {
         bist_nodma_beginning_address_read(),
         bist_nodma_ending_address_read(),
         bist_nodma_error_counter_read());
+    
+
+    printf("Finishing state machine ...");
 
     bist_nodma_start_write(LOWER_FLAG);
     bist_nodma_write_only_mode_write(LOWER_FLAG);
@@ -133,6 +136,8 @@ void sdram_bist_writer(uint32_t length, uint32_t beg_addr) {
     }
 
     bist_nodma_writer_finished_acknowledge_write(LOWER_FLAG);
+
+    printf("Done\n");
 }
 
 
