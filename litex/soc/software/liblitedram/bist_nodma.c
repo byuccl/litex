@@ -272,7 +272,7 @@ void sdram_bist(uint32_t base_addr, uint32_t length, uint32_t delay, int amode, 
 
         // Every 8 times 
         if(i % (PRINT_TITLE_NUM_CYCLES + 1) == 0) {
-            printf(" WRITE TICKS   READ TICKS TOTAL WRITES  TOTAL READS  WR-SPEED(MiB/s)  RD-SPEED(MiB/s)      ADDRESSES TESTED     ERRORS     REFRESH CK\n");
+            printf(" WRITE TICKS   READ TICKS TOTAL WRITES  TOTAL READS  WR-SPEED(MiB/s)  RD-SPEED(MiB/s)      ADDRESSES TESTED     ERRORS\n");
             i++;
         }
 
@@ -293,7 +293,7 @@ void sdram_bist(uint32_t base_addr, uint32_t length, uint32_t delay, int amode, 
                 read_speed = (uint64_t)((uint64_t)(bist_nodma_total_reads_read() * (uint64_t)(bist_nodma_bist_port_data_width_read() / 8) * (uint64_t)(CONFIG_CLOCK_FREQUENCY/(1024 * 1024))) / (uint64_t)bist_nodma_read_ticks_read());
             }
 
-            printf("%12lu %12lu %12lu %12lu %16llu %16llu   0x%07lx-0x%07lx %10lu %10lu\n", 
+            printf("%12lu %12lu %12lu %12lu %16llu %16llu   0x%07lx-0x%07lx %10lu\n", 
                 bist_nodma_write_ticks_read(), 
                 bist_nodma_read_ticks_read(), 
                 bist_nodma_total_writes_read(), 
@@ -302,8 +302,7 @@ void sdram_bist(uint32_t base_addr, uint32_t length, uint32_t delay, int amode, 
                 read_speed,
                 bist_nodma_beginning_address_read(),
                 bist_nodma_ending_address_read(),
-                bist_nodma_error_counter_read(),
-                sdram_refresh_ctr_read());
+                bist_nodma_error_counter_read());
 
             if(firsterror_index > 0 && error_break) {
                 break;
